@@ -67,6 +67,27 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 
     return startingBlockNumber; // location of free space bit map
 }
+//need to move functions out of this file.
+int loadSpace(int blockSize )
+{
+
+//printf("LOADSPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
+    int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
+    bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
+
+    if (bitMapPtr == NULL)
+    {
+        printf("Failed to allocate memory for bitmap in freeSpace\n");
+        return (-1);
+    }
+
+    //loading upp the bitmap
+    LBAread(bitMapPtr,5,1);
+  
+return 0;
+
+
+}
 
 int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
 {
@@ -89,6 +110,10 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
       printf("signature is %ld \n",vcb->signature);
     if( vcb->signature == 12345678)
     {
+        if(loadSpace(blockSize))
+        {
+            printf("Free space loaded \n");
+        }
         printf("signature is valid no need to create a new bitmap or vcb \n");
 
     }else
