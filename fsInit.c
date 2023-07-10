@@ -1,9 +1,9 @@
 /**************************************************************
-* Class:  CSC-415-0# Fall 2021
-* Names: 
-* Student IDs:
+* Class:  CSC-415-02 Summer 2023
+* Names: Saripalli Hruthika
+* Student IDs: 923066687
 * GitHub Name:
-* Group Name:
+* Group Name: Zombies
 * Project: Basic File System
 *
 * File: fsInit.c
@@ -23,6 +23,8 @@
 #include "fsLow.h"
 #include "mfs.h"
 
+#define BLOCK_SIZE 512
+
 typedef struct VCB
 {
     long signature;               // Unique number to validate the VCB
@@ -32,9 +34,24 @@ typedef struct VCB
     unsigned int bitMapLocation;  // Starting location of the bitmap to track free blocks
 } VCB;
 
+typedef struct dirEntry
+{
+        unsigned int location; //Starting location of the directory blocks
+        char fileName[256];//Name of file
+        unsigned long fileSize; //Size of the blob
+        char fileType;//Flag to identify directory or normal blob
+        int dirBlocks;//Number of blocks it occupies
+        time_t created; //Created time
+        time_t lastModified;//Last modified time
+} DE;
+
+DE * dirEnt[50]; //50 entries
+
+
 unsigned char *bitMapPtr; // to hold the memory address of the free space bitmap.
 VCB *vcb; //to hold address of the vcb
 // initializes the free space bitmap
+
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
 
@@ -68,6 +85,58 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
     return startingBlockNumber; // location of free space bit map
 }
 
+
+
+int rootDir(char *name, char *type, DE * dirEntry, DE** parent) 
+{
+
+/*Decide how many Directory Entries (DE) you want for a directory */
+    int numOfDirEnt = 50;
+
+/*Now multiply the size of your directory entry by the number of entries.*/
+    unsigned long dirSize = numOfDirEnt * sizeof(DE); 
+
+/*Now you need to determine how many blocks you need.*/
+    int blocksForDir = (dirSize + (vcb->blockSize - 1)) / (vcb->blockSize);
+
+/*Now you have a pointer to an array of directory entries. Loop through them 
+  and initialize each directory entry structure to be in a known free state.*/
+    for (int i = 0; i < numOfDirEnt; i++)
+    {
+        dirEnt[i] = malloc(sizeof(DE)); 
+    }
+	
+/*Now ask the free space system for 'blocksForDir' blocks*/
+/*Note : Hard coded starting block to 6 as first block 0=> VCB, Blocks 1 - 5 for bitmap*/
+    unsigned int location = freeSpace(6, blocksForDir, BLOCK_SIZE);
+
+
+/*Set 1st Directory entry '.'*/
+    dirEnt[0]->location = location;
+    strcpy(dirEnt[0]->fileName, ".");
+    dirEnt[0]->fileSize = (dirSize); 
+    dirEnt[0]->fileType = "d";  
+    dirEnt[0]->dirBlocks = blocksForDir;
+    time(&(dirEnt[0]->created));
+    time(&(dirEnt[0]->lastModified));
+
+/*Set 2nd Directory entry '..'*/
+    dirEnt[1]->location = location;
+    strcpy(dirEnt[1]->fileName, "..");
+    dirEnt[1]->fileSize = (dirSize);  
+    dirEnt[1]->fileType = "d";
+    dirEnt[1]->dirBlocks = blocksForDir;
+    time(&(dirEnt[1]->created));
+    time(&(dirEnt[1]->lastModified));
+
+/*Now write the root directory*/
+
+    //Need to write this block
+
+/*Return the starting block number of the root directory*/
+    return location;
+}
+
 int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
 {
     printf("Initializing File System with %ld blocks with a block size of %ld\n", numberOfBlocks, blockSize);
@@ -91,7 +160,8 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
     {
         printf("signature is valid no need to create a new bitmap or vcb \n");
 
-    }else
+    }
+    else
     {
          printf("signature is invalid overwriting hardrive data \n");
         // if vcb does not exist create it
@@ -110,6 +180,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         vcb->signature = 12345678;
         vcb->blockSize = blockSize;
         vcb->totalBlocks = numberOfBlocks;
+	vcb->rootLocation = rootDir("root", "d", NULL, NULL);
    
         //assign root node
         //assign this to the pointer
