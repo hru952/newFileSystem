@@ -134,8 +134,8 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
 
 /*Now write the root directory*/
 
-    unsigned char *buffer = malloc(blocksForDir * BLOCK_SIZE);
-    unsigned char *buffLocation = buffer;
+    char *buffer = malloc(blocksForDir * BLOCK_SIZE);
+    char *buffLocation = buffer;
     for (int i = 0; i < numOfDirEnt; i++)
     {
         memcpy(buffLocation, dirEnt[i], sizeof(DE));
