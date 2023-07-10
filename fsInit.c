@@ -134,7 +134,16 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
 
 /*Now write the root directory*/
 
-    //Need to write this block
+    unsigned char *buffer = malloc(blocksForDir * BLOCK_SIZE);
+    unsigned char *buffLocation = buffer;
+    for (int i = 0; i < numOfDirEnt; i++)
+    {
+        memcpy(buffLocation, dirEnt[i], sizeof(DE));
+        buffLocation += sizeof(DE);
+    }
+
+    LBAwrite(buffer, blocksForDir, location); 
+    printf("\nRoot Directory written to disk\n");
 
 /*Return the starting block number of the root directory*/
     return location;
