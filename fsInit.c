@@ -145,6 +145,8 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
     LBAwrite(buffer, blocksForDir, location); 
     printf("\nRoot Directory written to disk\n");
 
+    free(buffer);
+    buffer = NULL;
 /*Return the starting block number of the root directory*/
     return location;
 }
