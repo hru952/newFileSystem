@@ -38,7 +38,7 @@ VCB *vcb; //to hold address of the vcb
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
 
-    printf("FREEE SPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
+    //printf("FREEE SPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
 
@@ -48,7 +48,6 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
         return (-1);
     }
 
-   
     // Setting each byte to 0x00 so that all blocks are initially free and available for allocation.
     for (int i = 0; i < bitmapSize; i++)
     {
@@ -73,21 +72,41 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
 {
     printf("Initializing File System with %ld blocks with a block size of %ld\n", numberOfBlocks, blockSize);
     //check if vcb exists aka check signature
+    //there has to be a better way of doing this 
+    void *buffer = malloc(blockSize);
 
-    //if vcb exits load it up
 
-    // if vcb does not exist create it
+    //load up data where vcb would be
+    LBAread(buffer,1,0);
 
-    //creating vcb
 
-    {    // Create an instance of the VCB struct
-        vcb = malloc(sizeof(VCB)); 
+    //we are casting this as a different pointer of different size.
+    // while buffer is larger than vcb the data should be the same
+    //I cannot read directly into vcb as vcb is smaller than blocksize most
+    vcb = buffer;
+
+    //check to see if signature is good 
+      printf("signature is %ld \n",vcb->signature);
+    if( vcb->signature == 12345678)
+    {
+        printf("signature is valid no need to create a new bitmap or vcb \n");
+
+    }else
+    {
+         printf("signature is invalid overwriting hardrive data \n");
+        // if vcb does not exist create it
+       // Create an instance of the VCB struct
+
+       // commenting out the malloc part need to re think about malloc
+        //vcb = malloc(sizeof(VCB)); 
+
+        
         //we want to create a bitmap starting at location 1, not 0 since 0 represents the vcb
         // bitmap will occupy blocks 1-5
         // vcb will occupy block 0;
          //call free space
         vcb->bitMapLocation = freeSpace(1,numberOfBlocks, blockSize);
-        //assign signature dummy value for the time being
+        //assign signature dummy value for the time being hard coded for the time being
         vcb->signature = 12345678;
         vcb->blockSize = blockSize;
         vcb->totalBlocks = numberOfBlocks;
@@ -97,6 +116,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
     }
 
 
+    //free(buffer);
     /* TODO: Add any code you need to initialize your file system. */
 
     return 0;
@@ -119,6 +139,7 @@ void exitFileSystem()
 
     // Free resources
     free(bitMapPtr);
+
     free(vcb);
     bitMapPtr = NULL;
     printf("System exiting\n");
