@@ -39,7 +39,7 @@ typedef struct dirEntry
         unsigned int location; //Starting location of the directory blocks
         char fileName[256];//Name of file
         unsigned long fileSize; //Size of the blob
-        char fileType;//Flag to identify directory or normal blob
+        char fileType[1];//Flag to identify directory or normal blob
         int dirBlocks;//Number of blocks it occupies
         time_t created; //Created time
         time_t lastModified;//Last modified time
@@ -105,6 +105,7 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
     {
         dirEnt[i] = malloc(sizeof(DE)); 
     }
+    printf("\nInitialized Directory structure to known free state\n");
 	
 /*Now ask the free space system for 'blocksForDir' blocks*/
 /*Note : Hard coded starting block to 6 as first block 0=> VCB, Blocks 1 - 5 for bitmap*/
@@ -115,19 +116,21 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
     dirEnt[0]->location = location;
     strcpy(dirEnt[0]->fileName, ".");
     dirEnt[0]->fileSize = (dirSize); 
-    dirEnt[0]->fileType = "d";  
+    strcpy(dirEnt[0]->fileType, "d");  
     dirEnt[0]->dirBlocks = blocksForDir;
     time(&(dirEnt[0]->created));
     time(&(dirEnt[0]->lastModified));
+    printf("\n1st Directory Entry set\n");
 
 /*Set 2nd Directory entry '..'*/
     dirEnt[1]->location = location;
     strcpy(dirEnt[1]->fileName, "..");
     dirEnt[1]->fileSize = (dirSize);  
-    dirEnt[1]->fileType = "d";
+    strcpy(dirEnt[1]->fileType, "d");
     dirEnt[1]->dirBlocks = blocksForDir;
     time(&(dirEnt[1]->created));
     time(&(dirEnt[1]->lastModified));
+    printf("\n2nd Directory Entry set\n");
 
 /*Now write the root directory*/
 
@@ -156,7 +159,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
 
     //check to see if signature is good 
       printf("signature is %ld \n",vcb->signature);
-    if( vcb->signature == 12345678)
+    if( vcb->signature == 21111111)
     {
         printf("signature is valid no need to create a new bitmap or vcb \n");
 
@@ -177,7 +180,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
          //call free space
         vcb->bitMapLocation = freeSpace(1,numberOfBlocks, blockSize);
         //assign signature dummy value for the time being hard coded for the time being
-        vcb->signature = 12345678;
+        vcb->signature = 21111111;
         vcb->blockSize = blockSize;
         vcb->totalBlocks = numberOfBlocks;
 	vcb->rootLocation = rootDir("root", "d", NULL, NULL);
