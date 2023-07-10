@@ -109,7 +109,8 @@ int rootDir(char *name, char *type, DE * dirEntry, DE** parent)
 	
 /*Now ask the free space system for 'blocksForDir' blocks*/
 /*Note : Hard coded starting block to 6 as first block 0=> VCB, Blocks 1 - 5 for bitmap*/
-    unsigned int location = freeSpace(6, blocksForDir, BLOCK_SIZE);
+    //unsigned int location = load free space function
+    unsigned int location = 6;
 
 
 /*Set 1st Directory entry '.'*/
