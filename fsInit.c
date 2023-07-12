@@ -45,17 +45,14 @@ typedef struct dirEntry
         time_t lastModified;//Last modified time     
 } DE;
 
-
 unsigned char *bitMapPtr; // to hold the memory address of the free space bitmap.
 VCB *vcb; //to hold address of the vcb
 
 // Function to initialize the free space bitmap
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
-
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
-
     if (bitMapPtr == NULL)
     {
         printf("Failed to allocate memory for bitmap in freeSpace\n");
@@ -71,19 +68,15 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
     //Set bitMap to 0xFC (11111100 in binary) so that bit 0 (VCB start block) and 
     //Bits 1-5(1-5 blocks for bitmap) are not free and not available for allocation 
     bitMapPtr[0] = 0xFC; 
-  
     printf("\nFree space initialization completed successfully.\n");
-
     return startingBlockNumber; // location of free space bit map
 }
 
 //Function to load bitmap to memory if signature matches
 int loadSpace(int blockSize )
 {
-
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
-
     if (bitMapPtr == NULL)
     {
         printf("Failed to allocate memory for bitmap in freeSpace\n");
@@ -92,8 +85,7 @@ int loadSpace(int blockSize )
 
     //loading up the bitmap
     LBAread(bitMapPtr,5,1);
-  
-    return 0;
+    return 1;
 }
 
 //Function to allocate required number of contiguous free blocks
