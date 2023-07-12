@@ -254,7 +254,6 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
             printf("Free space loaded \n");
         }
         printf("signature is valid no need to create a new bitmap or vcb \n");
-
     }
     //If signature doesn't match, initialize freespace volume.
     else
