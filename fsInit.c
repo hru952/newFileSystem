@@ -54,6 +54,8 @@ VCB *vcb; //to hold address of the vcb
 
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
+
+    //printf("FREEE SPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
 
@@ -69,6 +71,11 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
         bitMapPtr[i] = 0x00;
     }
 
+        /*alekya
+        //VCB vcb; // Create an instance of the VCB struct
+        // vcb.bitMapLocation = startingBlockNumber;
+        */
+
     //Setting bitMapPtr[0] to 0xFC (11111100 in binary) so that bit 0 (VCB start block) and 
     // Bits 1-5(1-5 blocks for bitmap) are not free and not available for allocation 
     bitMapPtr[0] = 0xFC; 
@@ -76,6 +83,27 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
     printf("\nFree space initialization completed successfully.\n");
 
     return startingBlockNumber; // location of free space bit map
+}
+//need to move functions out of this file.
+int loadSpace(int blockSize )
+{
+
+//printf("LOADSPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
+    int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
+    bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
+
+    if (bitMapPtr == NULL)
+    {
+        printf("Failed to allocate memory for bitmap in freeSpace\n");
+        return (-1);
+    }
+
+    //loading upp the bitmap
+    LBAread(bitMapPtr,5,1);
+  
+return 0;
+
+
 }
 
 // Need to move functions out of this file.
