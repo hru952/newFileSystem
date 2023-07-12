@@ -55,7 +55,6 @@ VCB *vcb; //to hold address of the vcb
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
 
-    //printf("FREEE SPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
 
@@ -88,7 +87,6 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 int loadSpace(int blockSize )
 {
 
-//printf("LOADSPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
 
@@ -109,7 +107,6 @@ return 0;
 // Need to move functions out of this file.
 int loadSpace(int blockSize)
 {
-    // printf("LOADSPACE CALLEEEEEEEEEEEEEEEEEEEEEEEEEEEEED");
     int bitmapSize = 5 * blockSize; // Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for the bitmap
 
