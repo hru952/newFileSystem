@@ -2,7 +2,7 @@
 * Class:  CSC-415-02 Summer 2023
 * Names: Saripalli Hruthika, Nixxy Dewalt, Alekya Bairaboina, Banting Lin 
 * Student IDs: 923066687, 922018328, 923041428, 922404012
-* GitHub Name: hru952, 
+* GitHub Name: hru952, Alekhya1311, 
 * Group Name: Zombies
 * Project: Basic File System
 *
