@@ -1,9 +1,9 @@
 /**************************************************************
-* Class:  CSC-415-02 Summer 2023
-* Names: Saripalli Hruthika, Nixxy Dewalt, Alekya Bairaboina, Banting Lin 
-* Student IDs: 923066687, 922018328, 923041428, 922404012
-* GitHub Name: hru952, Alekhya1311, Bentosboxs, tdragon00
-* Group Name: Zombies
+* Class:  CSC-415-0# Fall 2021
+* Names: 
+* Student IDs:
+* GitHub Name:
+* Group Name:
 * Project: Basic File System
 *
 * File: fsInit.c
@@ -45,14 +45,17 @@ typedef struct dirEntry
         time_t lastModified;//Last modified time     
 } DE;
 
+
 unsigned char *bitMapPtr; // to hold the memory address of the free space bitmap.
 VCB *vcb; //to hold address of the vcb
 
 // Function to initialize the free space bitmap
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
 {
+
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
+
     if (bitMapPtr == NULL)
     {
         printf("Failed to allocate memory for bitmap in freeSpace\n");
@@ -68,15 +71,19 @@ int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
     //Set bitMap to 0xFC (11111100 in binary) so that bit 0 (VCB start block) and 
     //Bits 1-5(1-5 blocks for bitmap) are not free and not available for allocation 
     bitMapPtr[0] = 0xFC; 
+  
     printf("\nFree space initialization completed successfully.\n");
+
     return startingBlockNumber; // location of free space bit map
 }
 
 //Function to load bitmap to memory if signature matches
 int loadSpace(int blockSize )
 {
+
     int bitmapSize = (5 * blockSize); //Calculate the bitmap size based on the block size
     bitMapPtr = malloc(bitmapSize); // Allocate memory for bitmap
+
     if (bitMapPtr == NULL)
     {
         printf("Failed to allocate memory for bitmap in freeSpace\n");
@@ -85,6 +92,7 @@ int loadSpace(int blockSize )
 
     //loading up the bitmap
     LBAread(bitMapPtr,5,1);
+  
     return 1;
 }
 
@@ -159,7 +167,7 @@ unsigned int allocateFreeSpace(int numOfBlocks)
 }
 
 //Function to initialize root directory
-unsigned int rootDir(int numOfDirEnt, DE* parent) 
+unsigned int rootDir(int numOfDirEnt, char* flag, DE* parent) 
 {
 
 /*Decide how many Directory Entries (DE) you want for a directory */
@@ -195,20 +203,28 @@ unsigned int rootDir(int numOfDirEnt, DE* parent)
     printf("\nRoot Directory block number = %d\n", location);
 
 // Set 1st Directory entry '.'
-    dirEnt[0]->location = location;
-    strcpy(dirEnt[0]->fileName, ".");
-    dirEnt[0]->fileSize = (realSize); 
-    strcpy(dirEnt[0]->fileType, "d");  
-    dirEnt[0]->dirBlocks = blocksForDir;
-    time(&(dirEnt[0]->created));
-    time(&(dirEnt[0]->lastModified));
+    if(parent == NULL)
+    {
+        dirEnt[0]->location = location;
+        strcpy(dirEnt[0]->fileName, ".");
+    	dirEnt[0]->fileSize = (realSize); 
+    	strcpy(dirEnt[0]->fileType, flag);  
+    	dirEnt[0]->dirBlocks = blocksForDir;
+    	time(&(dirEnt[0]->created));
+    	time(&(dirEnt[0]->lastModified));
+    }
+    else
+    {
+	dirEnt[0] = parent;
+    }
+    
     printf("\n1st Directory Entry set\n");
 
 // Set 2nd Directory entry '..'
     dirEnt[1]->location = location;
     strcpy(dirEnt[1]->fileName, "..");
     dirEnt[1]->fileSize = (realSize);  
-    strcpy(dirEnt[1]->fileType, "d");
+    strcpy(dirEnt[1]->fileType, flag);
     dirEnt[1]->dirBlocks = blocksForDir;
     time(&(dirEnt[1]->created));
     time(&(dirEnt[1]->lastModified));
@@ -254,6 +270,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
             printf("Free space loaded \n");
         }
         printf("signature is valid no need to create a new bitmap or vcb \n");
+
     }
     //If signature doesn't match, initialize freespace volume.
     else
@@ -268,7 +285,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         vcb->totalBlocks = numberOfBlocks;//total blocks count
 	//Call function to initialize root directory and 
 	//initialize return value(location) to rootLocation in VCB.
-	unsigned int rootBlock = rootDir(30, NULL);
+	unsigned int rootBlock = rootDir(30,"d",NULL);
         if (rootBlock == -1){
 	    printf("\nError with root allocation\n");
             return(-1);
