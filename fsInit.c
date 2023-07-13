@@ -1,9 +1,9 @@
 /**************************************************************
-* Class:  CSC-415-0# Fall 2021
-* Names: 
-* Student IDs:
-* GitHub Name:
-* Group Name:
+* Class:  CSC-415-02 Summer 2023
+* Names: Saripalli Hruthika, Nixxy Dewalt, Alekya Bairaboina, Banting Lin 
+* Student IDs: 923066687, 922018328, 923041428, 922404012
+* GitHub Name: 
+* Group Name: Zombies
 * Project: Basic File System
 *
 * File: fsInit.c
