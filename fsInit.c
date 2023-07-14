@@ -47,7 +47,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
     //If signature matches, volume is alredy initialized.So load freespace bitmap.
     if( vcb->signature == magicNum)
     {
-         if(loadSpace(blockSize))
+         if(loadSpace(blockSize, bitMapPtr))
         {
             printf("Free space loaded \n");
         }
@@ -59,14 +59,14 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
          printf("\nsignature is invalid overwriting hardrive data \n");
         
         //call the function that initializes freespace
-        vcb->bitMapLocation = freeSpace(1,numberOfBlocks, blockSize);
+        vcb->bitMapLocation = freeSpace(1,numberOfBlocks, blockSize, bitMapPtr);
         //Initialize all vcb values
         vcb->signature = magicNum; //vcb signature
         vcb->blockSize = blockSize;//block size
         vcb->totalBlocks = numberOfBlocks;//total blocks count
 	//Call function to initialize root directory and 
 	//initialize return value(location) to rootLocation in VCB.
-	unsigned int rootBlock = rootDir(30, NULL, vcb);
+	unsigned int rootBlock = rootDir(30, NULL, vcb, bitMapPtr);
         if (rootBlock == -1){
 	    printf("\nError with root allocation\n");
             return(-1);
