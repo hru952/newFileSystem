@@ -36,7 +36,7 @@ unsigned int rootDir(int numOfDirEnt, DE* parent, VCB *vcb, unsigned char *bitMa
 	    }
     }
 // Now ask the free space system for 'blocksForDir' blocks/
-    unsigned int location = allocateFreeSpace(blocksForDir, vcb,bitMapPtr );
+    unsigned int location = allocateFreeSpace(blocksForDir, vcb, bitMapPtr );
     if (location == -1) {
         printf("\nFailed to allocate free blocks for root directory\n");
         return(-1);
