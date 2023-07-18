@@ -24,7 +24,7 @@
 #include "mfs.h"
 #include "fsFunc.h"
 
-#define magicNum 0x21736569626D6F5A //translates to "Zombies!" in hexdump
+#define magicNum 0x22736569626D6F5A //translates to "Zombies!" in hexdump
 
 // Function to initialize the free space bitmap
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
@@ -134,7 +134,8 @@ unsigned int rootDir(int numOfDirEnt, char* flag, DE* parent)
         printf("\nError: Root Directory writing failed\n");
     }
     printf("\nRoot Directory written to disk\n");
-    
+    currPath = "/"; //set current path to root for starting.
+    currPathLen = strlen(currPath) +1;
     free(buff); //free buffer
     buff = NULL;
 
@@ -157,12 +158,46 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
     //If signature matches, volume is alredy initialized.So load freespace bitmap.
     if( vcb->signature == magicNum)
     {
-         if(loadSpace(blockSize))
+        if(loadSpace(blockSize))
         {
             printf("Free space loaded \n");
         }
         printf("signature is valid no need to create a new bitmap or vcb \n");
 
+        //set dir(current directory) to root directory from volume.
+        int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+        int buffSize = blocksSpanned * blockSize;
+        char * rootBuffer = malloc(buffSize * sizeof(char));
+
+        for (int i = 0; i < totDirEnt; i++)
+        {
+            dir[i] = malloc(sizeof(DE)); //need to free in close.
+        }
+
+
+        uint64_t blocksRead = LBAread(rootBuffer, blocksSpanned, vcb->rootLocation);
+        if (blocksRead != blocksSpanned)
+        {
+            printf("Error lbaREad fsInit.c, initFileSystem, load root to current dir\n");
+            return -1;
+        }
+
+        unsigned char *buffLocation = rootBuffer;
+        for (int i = 0; i < totDirEnt; i++)
+        {
+            if (memcpy(dir[i], buffLocation, sizeof(DE)) == NULL)
+            {
+                printf("Error memcpy in fsInit.c, initFileSystem copy buffer to dir\n");
+            }
+            buffLocation += sizeof(DE);
+        }
+
+        //set curr path string to root.
+        currPath = "/";
+        currPathLen = strlen(currPath) + 1;
+
+        free(rootBuffer);
+        rootBuffer = NULL;
     }
     //If signature doesn't match, initialize freespace volume.
     else
@@ -206,6 +241,10 @@ void exitFileSystem()
     free(bitMapPtr);
     free(vcb);
     bitMapPtr = NULL;
+    for (int i = 0; i < totDirEnt; i++) 
+    {
+        free(dir[i]);
+        dir[i] = NULL;
+    }
     printf("System exiting\n");
 }
-
