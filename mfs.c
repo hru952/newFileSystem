@@ -18,6 +18,35 @@
 #include "fsLow.h"
 #include "fsFunc.h"
 
+// I do not know why i need size
+char * fs_getcwd(char *pathname, size_t size)
+{
+
+if(currPath!= NULL)
+ return currPath;
+
+
+return NULL;
+
+}
+
+int fs_setcwd(char *pathname)
+{
+    //fsfunc has path info 
+    if(fs_isDir(pathname))
+    {
+pathname
+
+    return 0;
+    }else
+    return 1;
+
+}
+
+
+
+
+
 int fs_mkdir(const char *pathname, mode_t mode)
 {
     printf("\nWELCOME TO fs_mkdir()\n");
