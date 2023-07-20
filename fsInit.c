@@ -134,7 +134,8 @@ unsigned int rootDir(int numOfDirEnt, char* flag, DE* parent)
         printf("\nError: Root Directory writing failed\n");
     }
     printf("\nRoot Directory written to disk\n");
-    currPath = "/"; //set current path to root for starting.
+    currPath = malloc(2);
+    currPath = strcpy(currPath, "/"); //set current path to root for starting.
     currPathLen = strlen(currPath) +1;
     free(buff); //free buffer
     buff = NULL;
@@ -192,9 +193,12 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
             buffLocation += sizeof(DE);
         }
 
-        //set curr path string to root.
-        currPath = "/";
-        currPathLen = strlen(currPath) + 1;
+
+        currPath = malloc(2);
+        currPath = strcpy(currPath, "/"); //set current path to root for starting.
+        currPathLen = strlen(currPath) +1;
+       
+       
 
         free(rootBuffer);
         rootBuffer = NULL;
@@ -240,6 +244,7 @@ void exitFileSystem()
     // Free resources
     free(bitMapPtr);
     free(vcb);
+    free(currPath);
     bitMapPtr = NULL;
     for (int i = 0; i < totDirEnt; i++) 
     {

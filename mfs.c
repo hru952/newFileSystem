@@ -30,19 +30,6 @@ return NULL;
 
 }
 
-int fs_setcwd(char *pathname)
-{
-    //fsfunc has path info 
-    if(fs_isDir(pathname))
-    {
-pathname
-
-    return 0;
-    }else
-    return 1;
-
-}
-
 
 
 
@@ -137,6 +124,61 @@ int CheckFileOrDir(const char * pathname){
 
     
 }
+
+int fs_setcwd(char *pathname)
+{
+  char* finalpath;
+  int rootoffset=0;
+
+
+    //fsfunc has path info 
+    //
+
+    //printf("pathname:,%s /n", pathname);
+    //printf( "%i \n",CheckFileOrDir(pathname) );
+    if((CheckFileOrDir(pathname) == 1))
+    {
+
+
+
+
+
+    
+     parsePath(pathname);
+
+        //printf("path: %s \n", parseInfo.parentDirName);
+
+
+
+    //so basically I have to concat darentDirname and path
+
+    finalpath = malloc(strlen(parseInfo.path)+ 2+ strlen(parseInfo.name));
+    //printf("%s",parseInfo.path);
+    strcpy(finalpath,parseInfo.path);
+    //check if its root
+
+    printf("path: %s \n", parseInfo.path);
+
+    if(parseInfo.path[strlen(parseInfo.path)-1] != '/')
+    {
+        printf("offset called \n");
+    finalpath[strlen(parseInfo.path)]= '/';
+    rootoffset++;
+    }
+    strcpy(finalpath + rootoffset+strlen(parseInfo.path),parseInfo.name);
+        printf("parseinfo.name name is: %s\n", parseInfo.name);
+
+    printf("final path name is: %s\n", finalpath);
+    
+    free(currPath);// in case of malloc
+    currPath = finalpath; //assigning new pointer
+    currPathLen = (strlen(currPath) + 1);
+    return 0;
+    }else
+    return 1;
+
+}
+
 
 
 
