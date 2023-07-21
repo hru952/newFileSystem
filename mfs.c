@@ -131,34 +131,40 @@ int fs_setcwd(char *pathname)
   int rootoffset=0;
 
 
-    //fsfunc has path info 
-    //
-
     //printf("pathname:,%s /n", pathname);
     //printf( "%i \n",CheckFileOrDir(pathname) );
-    if((CheckFileOrDir(pathname) == 1))
+    
+    //check to see if its and exists directory
+    //WE EXIT IF WE DNE
+   if(CheckFileOrDir(pathname) == 1)
     {
-
-
-
-
+        
+    //printf("%s",parseInfo.fileType);
+    //printf("path: %s \n", parseInfo.parentDirName);
+    //this is the root case
+    printf("path :%s \n",parseInfo.path);
+    printf("name :%s \n",parseInfo.name);
 
     
-     parsePath(pathname);
-
-        //printf("path: %s \n", parseInfo.parentDirName);
-
-
+    if(parseInfo.name[0] == '/')
+    {
+        printf("ROOT CASE \n");
+    currPath = malloc(2);
+    currPath = strcpy(currPath, "/"); //set current path to root for starting.
+    currPathLen = strlen(currPath) +1;
+        return 0;
+    }
 
     //so basically I have to concat darentDirname and path
-
     finalpath = malloc(strlen(parseInfo.path)+ 2+ strlen(parseInfo.name));
     //printf("%s",parseInfo.path);
     strcpy(finalpath,parseInfo.path);
-    //check if its root
+ 
 
+
+    
     printf("path: %s \n", parseInfo.path);
-
+       //check if its root
     if(parseInfo.path[strlen(parseInfo.path)-1] != '/')
     {
         printf("offset called \n");
