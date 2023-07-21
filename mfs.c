@@ -18,6 +18,22 @@
 #include "fsLow.h"
 #include "fsFunc.h"
 
+// I do not know why i need size
+char * fs_getcwd(char *pathname, size_t size)
+{
+
+if(currPath!= NULL)
+ return currPath;
+
+
+return NULL;
+
+}
+
+
+
+
+
 int fs_mkdir(const char *pathname, mode_t mode)
 {
     printf("\nWELCOME TO fs_mkdir()\n");
@@ -108,6 +124,67 @@ int CheckFileOrDir(const char * pathname){
 
     
 }
+
+int fs_setcwd(char *pathname)
+{
+  char* finalpath;
+  int rootoffset=0;
+
+
+    //printf("pathname:,%s /n", pathname);
+    //printf( "%i \n",CheckFileOrDir(pathname) );
+    
+    //check to see if its and exists directory
+    //WE EXIT IF WE DNE
+   if(CheckFileOrDir(pathname) == 1)
+    {
+        
+    //printf("%s",parseInfo.fileType);
+    //printf("path: %s \n", parseInfo.parentDirName);
+    //this is the root case
+    printf("path :%s \n",parseInfo.path);
+    printf("name :%s \n",parseInfo.name);
+
+    
+    if(parseInfo.name[0] == '/')
+    {
+        printf("ROOT CASE \n");
+    currPath = malloc(2);
+    currPath = strcpy(currPath, "/"); //set current path to root for starting.
+    currPathLen = strlen(currPath) +1;
+        return 0;
+    }
+
+    //so basically I have to concat darentDirname and path
+    finalpath = malloc(strlen(parseInfo.path)+ 2+ strlen(parseInfo.name));
+    //printf("%s",parseInfo.path);
+    strcpy(finalpath,parseInfo.path);
+ 
+
+
+    
+    printf("path: %s \n", parseInfo.path);
+       //check if its root
+    if(parseInfo.path[strlen(parseInfo.path)-1] != '/')
+    {
+        printf("offset called \n");
+    finalpath[strlen(parseInfo.path)]= '/';
+    rootoffset++;
+    }
+    strcpy(finalpath + rootoffset+strlen(parseInfo.path),parseInfo.name);
+        printf("parseinfo.name name is: %s\n", parseInfo.name);
+
+    printf("final path name is: %s\n", finalpath);
+    
+    free(currPath);// in case of malloc
+    currPath = finalpath; //assigning new pointer
+    currPathLen = (strlen(currPath) + 1);
+    return 0;
+    }else
+    return 1;
+
+}
+
 
 
 
