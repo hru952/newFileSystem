@@ -107,6 +107,37 @@ unsigned int allocateFreeSpace(int numOfBlocks)
     // Return the starting block index of the allocated space
     return allocatedBlocks; 
 }
+// Function to Free the Blocks
+void freeTheBlocks(int startBlock, int numberOfBlocks)
+{
+    // Calculate the byte and bit index for the start block
+    int byteIndex = startBlock / 8;
+    int bitIndex = startBlock % 8;
+
+    int remainingBlocks = numberOfBlocks;
+
+    while (remainingBlocks > 0)
+    {
+        // Check if the bit is currently set (block is used)
+        int isSet = (bitMapPtr[byteIndex] >> (7 - bitIndex)) & 1;
+        if (isSet)
+        {
+            // Clear the bit to mark the block as free
+            bitMapPtr[byteIndex] &= ~(1 << (7 - bitIndex));
+        }
+
+        bitIndex++;
+        remainingBlocks--;
+
+        if (bitIndex >= 8)
+        {
+            // Move to the next byte in the bitmap
+            byteIndex++;
+            bitIndex = 0;
+        }
+    }
+}
+
 
 
 
