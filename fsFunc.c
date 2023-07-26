@@ -471,7 +471,7 @@ PP * parsePath(const char *pathname) {
 
     strcpy(parseInfo.fileType, fileType);
     parseInfo.index = endPathIndex;
-    parseInfo.parentDirPtr = parseDir;
+    parseInfo.parentDirPtr = parseDir;   
     if(numTokens == 0) {
        //means only root was supplied "/".
        //delimeter is / so tokens will be 0.
@@ -492,6 +492,9 @@ PP * parsePath(const char *pathname) {
      
     //set name
     strcpy(parseInfo.name, lastElementName);
+
+    parseInfo.entry =  &parseDir[foundIndex];
+
 
 
     int dotOrDotDot = -1; //if equals 0 . or .. is first element in path.

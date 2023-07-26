@@ -51,12 +51,12 @@ typedef struct parsePathInfo //for parsePath
 {
     DE * parentDirPtr;
     char * parentDirName;
-    int index; // index in directory;
-    int exists; //0 exists, -1 not exists, for last file or dir in the path
-    char fileType[2]; // "f" = file, "d"= dir, is a c string.
-    char name [256]; //last file or directory name.
-    char * path; //parent path. must free this when your done.
-    
+    int index;                  // index in directory;
+    int exists;                 // 0 exists, -1 not exists, for last file or dir in the path
+    char fileType[2];           // "f" = file, "d"= dir, is a c string.
+    char name [256];            // last file or directory name.
+    char * path;                // parent path. must free this when your done.
+    DE * entry;                        //pointer to actual directory entry
 
 }PP;
 

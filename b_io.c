@@ -38,6 +38,8 @@ typedef struct b_fcb
     int currentBufferOffset; //to keep track of the position within the buffer during read/write operations.
     int fileOffset; //current position within the file being read or written
     int currentBlock; //to keep track of the current block number within the file
+	int fileAccessFlags; //flags on the file they
+	// use bitwise operator & to check
 	} b_fcb;
 	
 b_fcb fcbArray[MAXFCBS];
@@ -71,20 +73,62 @@ b_io_fd b_getFCB ()
 	
 // Interface to open a buffered file
 // Modification of interface for this assignment, flags match the Linux flags for open
-// O_RDONLY, O_WRONLY, or O_RDWR
+// O_RDONLY, O_WRONLY, or O_RDWR or O_CREAT
 b_io_fd b_open (char * filename, int flags)
 	{
-	b_io_fd returnFd;
 
-	//*** TODO ***:  Modify to save or set any information needed
-	//
-	//
-		
 	if (startup == 0) b_init();  //Initialize our system
-	
+	b_io_fd returnFd; //return value
+
+
+
+	//call parse path to get test if we have valid file
+	parsePath(filename);
+	//see if it exists
+	if(parseInfo.exist==0)
+	{
+		//see if it is a directory
+		if(parseInfo.fileType == "d")
+		{
+			printf("This is a directory not a file");
+			return -1;
+		}
+
+	}
+
+	//  at this stage file is not a Directory entry or it does not exist
+
+
+	//create file
+	//need create a file function
+	if(flags & O_CREAT)
+	{
+		//repopulating the parsepath struct since we will need it fof the fcb.
+		parsePath(fileName);
+	}
+
 	returnFd = b_getFCB();				// get our own file descriptor
 										// check for error - all used FCB's
-	
+	if(returnFd == -1)
+	{
+		printf("All FCBs used please close other files. \n");
+		
+	}
+
+	if(returnFd != -1)
+	{
+		
+	fcbArray[returnFd].buf = malloc(BLOCK_SIZE);		//holds the open file buffer
+	fcbArray[returnFd].index = 0;		//holds the current position in the buffer
+	fcbArray[returnFd].buflen = 0;		//holds how many valid bytes are in the buffer
+    fcbArray[returnFd].fileDE = parsePathInfo.entry;			//Pointer to the Directory Entry needs to be in parsePathInfo
+    fcbArray[returnFd].fileSize = parsePathInfo.fileSize;  		//needs Directory Entry
+    fcbArray[returnFd].currentBufferOffset = 0; //to keep track of the position within the buffer during read/write operations.
+    fcbArray[returnFd].fileOffset = 0; 	//current position within the file being read or written
+    fcbArray[returnFd].currentBlock = 0; //to keep track of the current block number within the file
+	fcbArray[returnFd].fileAccessFlags = flags; // need to watch out for create
+	}
+
 	return (returnFd);						// all set
 	}
 
