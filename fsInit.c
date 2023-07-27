@@ -24,7 +24,7 @@
 #include "mfs.h"
 #include "fsFunc.h"
 
-#define magicNum 0x22736569626D6F5A //translates to "Zombies!" in hexdump
+#define magicNum 0x21736569626D6F5A //translates to "Zombies!" in hexdump
 
 // Function to initialize the free space bitmap
 int freeSpace(int startingBlockNumber, int totalBlocks, int blockSize)
@@ -134,8 +134,8 @@ unsigned int rootDir(int numOfDirEnt, char* flag, DE* parent)
         printf("\nError: Root Directory writing failed\n");
     }
     printf("\nRoot Directory written to disk\n");
-    currPath = malloc(2);
-    currPath = strcpy(currPath, "/"); //set current path to root for starting.
+
+    currPath = "/"; //set current path to root for starting.
     currPathLen = strlen(currPath) +1;
     free(buff); //free buffer
     buff = NULL;
@@ -179,7 +179,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         uint64_t blocksRead = LBAread(rootBuffer, blocksSpanned, vcb->rootLocation);
         if (blocksRead != blocksSpanned)
         {
-            printf("Error lbaREad fsInit.c, initFileSystem, load root to current dir\n");
+            printf("Error\n");
             return -1;
         }
 
@@ -188,17 +188,14 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         {
             if (memcpy(dir[i], buffLocation, sizeof(DE)) == NULL)
             {
-                printf("Error memcpy in fsInit.c, initFileSystem copy buffer to dir\n");
+                printf("Error in copy buffer to dir\n");
             }
             buffLocation += sizeof(DE);
         }
 
-
-        currPath = malloc(2);
-        currPath = strcpy(currPath, "/"); //set current path to root for starting.
-        currPathLen = strlen(currPath) +1;
-       
-       
+        //set curr path string to root.
+        currPath = "/";
+        currPathLen = strlen(currPath) + 1;
 
         free(rootBuffer);
         rootBuffer = NULL;
@@ -244,7 +241,6 @@ void exitFileSystem()
     // Free resources
     free(bitMapPtr);
     free(vcb);
-    free(currPath);
     bitMapPtr = NULL;
     for (int i = 0; i < totDirEnt; i++) 
     {
