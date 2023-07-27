@@ -43,7 +43,7 @@ CFLAGS= -g -I.
 LIBS =pthread
 DEPS = 
 # Add any additional objects to this list
-ADDOBJ= fsInit.o mfs.o fsFunc.o
+ADDOBJ= fsInit.o mfs.o fsFunc.o b_io.o
 ARCH = $(shell uname -m)
 
 ifeq ($(ARCH), aarch64)
@@ -68,5 +68,4 @@ run: $(ROOTNAME)$(HW)$(FOPTION)
 
 vrun: $(ROOTNAME)$(HW)$(FOPTION)
 	valgrind ./$(ROOTNAME)$(HW)$(FOPTION) $(RUNOPTIONS)
-
 
