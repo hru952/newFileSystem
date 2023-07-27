@@ -20,6 +20,7 @@
 #include "fsFunc.h"
 #include "b_io.h"
 
+
 #include <dirent.h>
 #define FT_REGFILE	DT_REG
 #define FT_DIRECTORY DT_DIR
@@ -51,11 +52,11 @@ typedef struct
 	/*****TO DO:  Fill in this structure with what your open/read directory needs  *****/
 	unsigned short  d_reclen;		/* length of this record */
 	unsigned short	dirEntryPosition;	/* which directory entry position, like file pos */
-	DE * openDirPointer;		/* Pointer to the loaded directory you want to iterate */
+	//DE *	directory;			/* Pointer to the loaded directory you want to iterate */
 	struct fs_diriteminfo * di;		/* Pointer to the structure you return from read */
-	uint64_t	directoryStartLocation;		/*Starting LBA of directory */
-	
-	} fdDir;
+	uint64_t directoryStartLocation;       /*Starting LBA of directory */
+	DE * openDirPtr;
+        } fdDir;
 
 // Key directory functions
 int fs_mkdir(const char *pathname, mode_t mode);
@@ -90,4 +91,3 @@ struct fs_stat
 int fs_stat(const char *path, struct fs_stat *buf);
 
 #endif
-
