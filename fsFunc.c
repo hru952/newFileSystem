@@ -107,37 +107,6 @@ unsigned int allocateFreeSpace(int numOfBlocks)
     // Return the starting block index of the allocated space
     return allocatedBlocks; 
 }
-// Function to Free the Blocks
-void freeTheBlocks(int startBlock, int numberOfBlocks)
-{
-    // Calculate the byte and bit index for the start block
-    int byteIndex = startBlock / 8;
-    int bitIndex = startBlock % 8;
-
-    int remainingBlocks = numberOfBlocks;
-
-    while (remainingBlocks > 0)
-    {
-        // Check if the bit is currently set (block is used)
-        int isSet = (bitMapPtr[byteIndex] >> (7 - bitIndex)) & 1;
-        if (isSet)
-        {
-            // Clear the bit to mark the block as free
-            bitMapPtr[byteIndex] &= ~(1 << (7 - bitIndex));
-        }
-
-        bitIndex++;
-        remainingBlocks--;
-
-        if (bitIndex >= 8)
-        {
-            // Move to the next byte in the bitmap
-            byteIndex++;
-            bitIndex = 0;
-        }
-    }
-}
-
 
 
 
@@ -179,7 +148,7 @@ void createDir(char * name, DE * dirEntry, DE * parent) {
     
     //pointer to self
     directory[0].location = location;
-    printf("mkdir -- location to write dir to: %d\n", directory[0].location);
+    printf("\n New directory location : %d\n", directory[0].location);
     directory[0].fileSize = (dirSize); //2880
     directory[0].dirBlocks = blocksSpanned;
     strcpy(directory[0].fileName, ".");
@@ -232,7 +201,7 @@ void createDir(char * name, DE * dirEntry, DE * parent) {
 
     free(buffer);
     buffer = NULL;
-    printf("\nEND createDir()------------------------------------\n");
+    //printf("\nEND createDir()------------------------------------\n");
 }
 
 //if directories become dynamic will have to ask for new memory location and free old ones.
@@ -264,7 +233,7 @@ int writeDirToVolume (DE * dirToWrite) {
 }
 
 int reloadCurrentDir(DE * directory) {
-    printf("\nreloadCurrentDir() ---------------------\n");
+    //printf("\nreloadCurrentDir() ---------------------\n");
         
         int blocksSpanned = directory[0].dirBlocks; 
         int buffSize = blocksSpanned * sizeOfBlock;
@@ -293,10 +262,10 @@ int reloadCurrentDir(DE * directory) {
 
 //get information on a given path from PPI struct.
 PP * parsePath(const char *pathname) {
-    printf("\nWELCOME TO parse path()\n");
+    //printf("\nWELCOME TO parse path()\n");
 
     if(pathname == NULL ||strlen(pathname) == 0) {
-        printf("Invalid Path - empty or null\n");
+        printf("\nInvalid Path - empty or null\n");
         return NULL;
     }
 
@@ -319,28 +288,25 @@ PP * parsePath(const char *pathname) {
     //path not empty check first element if / then its starting at root
     // Absolute path and current directory is not root.
     if(absolutePath && strcmp(pathname, currPath) == 0) {
-        printf("\n293\n");
         // load root. copy into parseDir.
         int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
         int buffSize = blocksSpanned * BLOCK_SIZE;
         char buffer[buffSize];
-        
-        printf("\n298\n");
+
         uint64_t blocksRead = LBAread(buffer, blocksSpanned, vcb->rootLocation);
         if( blocksRead != blocksSpanned) {
-            printf("Error lbaREad mfs.c, parsepath() 22222222\n");
+            printf("\nError during read in Parse path\n");
             return NULL;
         }
 
         //copy buff to ParseDir
         if(memcpy(parseDir, buffer, sizeof(parseDir)) == NULL) {
-            printf("Error memcpy in mfs.c, parsePath\n");
+            printf("\nError memcpy in parsePath\n");
         }
     }
     else 
     {
-      //we must maintain a current d
-      // irectory. root is loaded as starting current directory.
+      //we must maintain a current directory. root is loaded as starting current directory.
 
       //   copy currentDir into parseDir to work with and change in case its
       //   a bad path we can scrap it without loding current dir.
@@ -364,11 +330,8 @@ PP * parsePath(const char *pathname) {
     while (token != NULL)
     {
         strcpy(tokenizedPath[numTokens], token);
-        numTokens++;
-        // printf("index: %d ,token : %s\n",numTokens, token);
+        numTokens++;        
         token = strtok(NULL, "/");
-        printf("\n342\n");
-
     }
 
     
@@ -395,7 +358,7 @@ PP * parsePath(const char *pathname) {
                 }
                 else if ((numTokens - i) == 1) //last token so we can mark if it exists or not.
                 {
-                    printf("last token found : %s\n", parseDir[j].fileName);
+                    //printf("last token found : %s\n", parseDir[j].fileName);
                     parseInfo.exists = 0;
                     found = 1;
                     foundIndex = j;
@@ -421,7 +384,7 @@ PP * parsePath(const char *pathname) {
 
         //Went through directory and did not find a match for particular token.
         if(found == 0) {
-            printf("invalid path token : %s\n", tokenizedPath[i]);
+            printf("\ninvalid path token : %s\n", tokenizedPath[i]);
             return NULL;
         }
 
@@ -441,16 +404,15 @@ PP * parsePath(const char *pathname) {
             uint64_t blocksRead = LBAread(buffer, blocksSpanned, parseDir[foundIndex].location);
             if (blocksRead != blocksSpanned)
             {
-                printf("Error lbaREad mfs.c, parsepath()*****\n");
+                printf("\nError in parse path\n");
                 return NULL;
             }
 
             //copy buff to ParseDir
             if (memcpy(parseDir, buffer, sizeof(parseDir)) == NULL)
             {
-                printf("Error memcpy in mfs.c, parsePath 1111111\n");
+                printf("\nError memcpy in parsePath\n");
             }
-            printf("\n 2. PP DIR print dir in for loop path infor\n");
         }
 
         //reset found for next search
@@ -471,7 +433,7 @@ PP * parsePath(const char *pathname) {
 
     strcpy(parseInfo.fileType, fileType);
     parseInfo.index = endPathIndex;
-    parseInfo.parentDirPtr = parseDir;   
+    parseInfo.parentDirPtr = parseDir;
     if(numTokens == 0) {
        //means only root was supplied "/".
        //delimeter is / so tokens will be 0.
@@ -482,19 +444,16 @@ PP * parsePath(const char *pathname) {
      char lastElementName[256] = "";
      if (numTokens > 0)
      {
-         printf("token[i - 1] = %s\n",tokenizedPath[numTokens - 1] );
+         printf("\ntoken[i - 1] = %s\n",tokenizedPath[numTokens - 1] );
         strcpy(lastElementName, tokenizedPath[numTokens - 1]);
      }
      else {
-         printf("last elemnt strcpy to root / \n");
+         //printf("last elemnt strcpy to root / \n");
          strcpy(lastElementName, "/");
      }
      
     //set name
     strcpy(parseInfo.name, lastElementName);
-
-    parseInfo.entry =  &parseDir[foundIndex];
-
 
 
     int dotOrDotDot = -1; //if equals 0 . or .. is first element in path.
@@ -523,8 +482,8 @@ PP * parsePath(const char *pathname) {
         }
 
         // test display path.
-        printf("1. numtokens: %d\n", numCurrentTokens);
-        printf(" 1. display tokenized path\n");
+        //printf("1. numtokens: %d\n", numCurrentTokens);
+        printf("\ndisplay tokenized path\n");
         for (int i = 0; i < numCurrentTokens; i++)
         {
             printf("%s\n", tokenCurrPath[i]);
@@ -544,12 +503,12 @@ PP * parsePath(const char *pathname) {
 
         if(numCurrentTokens > 1) {
             strcpy(parseInfo.name, tokenCurrPath[numCurrentTokens - 2]);
-            printf("parse info name updated to : %s\n", parseInfo.name);
+            //printf("parse info name updated to : %s\n", parseInfo.name);
             
             //build new path.
             newPath = malloc(2 * sizeof(char));
             strcpy(newPath, "/");
-            printf("copy newpath / : %s\n", newPath);
+            //printf("copy newpath / : %s\n", newPath);
 
             for(int i = 0; i < numCurrentTokens - 2; i++){
                newPath = realloc(newPath, (strlen(newPath) + strlen(tokenCurrPath[i]) +1));
@@ -560,7 +519,7 @@ PP * parsePath(const char *pathname) {
                     strcat(newPath, "/");
                }
             }
-            printf("copy newpath after for loop : %s\n", newPath);
+            //printf("copy newpath after for loop : %s\n", newPath);
 
             parseInfo.path = malloc(strlen(newPath) + 1);
 
@@ -614,7 +573,7 @@ PP * parsePath(const char *pathname) {
 }//END parsePath.
 
 DE * findEmptyDE (DE * parentDir) {
-    printf("in findEmptyDE\n");
+
     for ( int i = 0; i < totDirEnt; i++)
     {
         if(strcmp(parentDir[i].fileName, "") == 0){
@@ -625,4 +584,45 @@ DE * findEmptyDE (DE * parentDir) {
     return NULL;
 }
 
+void printCurrentDir(DE * dir[]){
+    //printf("\ncurrent dir*************\n");
+	for(int i = 0; i < totDirEnt; i++) {
+		printf("\n");
+		printf("Dfilename : %s\n", dir[i]->fileName);
+		printf("Dlocation : %d\n", dir[i]->location);
+		printf("Dfilesize: %d\n", dir[i]->fileSize);
+		printf("Dblockspanned : %d\n", dir[i]->dirBlocks);
+		printf("DfileType : %s\n", dir[i]->fileType);
+		printf("\n");
+    }
+}
 
+void freeBlocks(int startBlock, int numberOfBlocks)
+{
+    // Calculate the byte and bit index for the start block
+    int byteIndex = startBlock / 8;
+    int bitIndex = startBlock % 8;
+
+    int remainingBlocks = numberOfBlocks;
+
+    while (remainingBlocks > 0)
+    {
+        // Check if the bit is currently set (block is used)
+        int isSet = (bitMapPtr[byteIndex] >> (7 - bitIndex)) & 1;
+        if (isSet)
+        {
+            // Clear the bit to mark the block as free
+            bitMapPtr[byteIndex] &= ~(1 << (7 - bitIndex));
+        }
+
+        bitIndex++;
+        remainingBlocks--;
+
+        if (bitIndex >= 8)
+        {
+            // Move to the next byte in the bitmap
+            byteIndex++;
+            bitIndex = 0;
+        }
+    }
+}
