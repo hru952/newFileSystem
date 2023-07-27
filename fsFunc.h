@@ -51,12 +51,12 @@ typedef struct parsePathInfo //for parsePath
 {
     DE * parentDirPtr;
     char * parentDirName;
-    int index;                  // index in directory;
-    int exists;                 // 0 exists, -1 not exists, for last file or dir in the path
-    char fileType[2];           // "f" = file, "d"= dir, is a c string.
-    char name [256];            // last file or directory name.
-    char * path;                // parent path. must free this when your done.
-    DE * entry;                        //pointer to actual directory entry
+    int index; // index in directory;
+    int exists; //0 exists, -1 not exists, for last file or dir in the path
+    char fileType[2]; // "f" = file, "d"= dir, is a c string.
+    char name [256]; //last file or directory name.
+    char * path; //parent path. must free this when your done.
+    
 
 }PP;
 
@@ -70,6 +70,11 @@ char * currPath; //free in close.
 
 int loadSpace(int blockSize);
 unsigned int allocateFreeSpace(int numOfBlocks);
+//int blocksNeeded(int size);
+//void createDir(char * name, DE * dirEntry, DE * parent);
+//int writeDir (DE * directory);
+//int loadDir(DE * directory);
+//DE * allocateDE (DE * parentDir);
 int blocksNeeded(int size);
 void createDir(char * name, DE * dirEntry, DE * parent);
 int writeDirToVolume (DE * directory);
@@ -80,7 +85,7 @@ PP parseInfo; //for parsePath
 DE parseDir[totDirEnt]; //for parsePath
 PP * parsePath(const char *pathname);
 
-#endif
+void printCurrentDir(DE * dir[]);
+void freeBlocks(int startBlock, int numberOfBlocks);
 
-
-
+#endif //
