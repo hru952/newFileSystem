@@ -422,6 +422,15 @@ int fs_delete(char *filename)
     // Use freeTheBlocks(location, blocksNeeded(size of file))
     freeBlocks(parseInfo->parentDirPtr[parseInfo->index].location, blocksNeeded(parseInfo->parentDirPtr[parseInfo->index].fileSize));
 
+     // write the directory changes to disk
+    writeDirToVolume(parseInfo->parentDirPtr);
+
+    if (strcpy(parseInfo->path, currPath) == 0)
+    {
+
+        reloadCurrentDir(parseInfo->parentDirPtr);
+    }
+
     return 0;
 }
 

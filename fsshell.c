@@ -1,5 +1,5 @@
 /**************************************************************
- * Class:  CSC-415-0# - Summer 2023
+ * Class:  CSC-415-02 - Summer 2023
  * Names:
  * Student IDs:
  * GitHub Name:
@@ -41,12 +41,12 @@
 #define CMDMV_ON 1
 #define CMDMD_ON 1
 #define CMDRM_ON 1
-#define CMDCP2L_ON 0
-#define CMDCP2FS_ON 0
+#define CMDCP2L_ON 1
+#define CMDCP2FS_ON 1
 #define CMDCD_ON 1
 #define CMDPWD_ON 1
 #define CMDTOUCH_ON 1
-#define CMDCAT_ON 0
+#define CMDCAT_ON 1
 
 typedef struct dispatch_t
 {
@@ -347,8 +347,120 @@ int cmd_cp(int argcnt, char *argvec[])
 int cmd_mv(int argcnt, char *argvec[])
 {
 #if (CMDMV_ON == 1)
-	return -99;
+	// return -99;
 	// **** TODO ****  For you to implement
+    if(argcnt != 3){
+		return -1;
+	}
+	else{
+
+		if(fs_isFile(argvec[1])){
+			if(fs_isDir(argvec[2])){
+				DE * mvDir;
+				
+				PP * parsePathVal1 = parsePath(argvec[2]);
+				DE * emptyDE;
+				if(parsePathVal1 != NULL){
+					//check if there is an empty directory entry
+					char * bufferToOpenDir = malloc(BLOCK_SIZE*totDirEnt);
+					int dirBlocks = blocksNeeded(BLOCK_SIZE*totDirEnt);
+					LBAread(bufferToOpenDir, dirBlocks, parsePathVal1->parentDirPtr[parsePathVal1->index].location);
+					printf("Location of directory we want to move: %d\n", parsePathVal1->parentDirPtr[parsePathVal1->index].location);
+					mvDir = malloc(totDirEnt*sizeof(DE));
+					memcpy(mvDir, bufferToOpenDir, totDirEnt*sizeof(DE));
+
+					emptyDE = findEmptyDE(mvDir);
+					printf("\n\nDirectory name as per retunOfFindEmptyDE: %s\n\n", emptyDE->fileName);
+					//exit(0);
+					
+					if(emptyDE==NULL){
+						printf("Error:No empty directory entry found\n");
+						
+						return 0;
+					}
+
+				}
+				else{
+					printf("Error: Directory not found; ParsePath returned NULL\n");
+					return -1;
+
+				}
+				
+
+				PP * returnOfParsePath2 = parsePath(argvec[1]);
+				if(returnOfParsePath2 != NULL){
+					//get fileinfo from old directory to move it to new directory
+					//check in which index is the file we want is present, based on its name
+					//Go to its directory entry and save all the details of that file into temp variables
+					//now go to destination folder, find empty dir entry
+					//copy all the information saved in temp variables to empty dir entry
+					//do LBAWrite of whatever we have written into the memory
+
+					
+
+					emptyDE->location = returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].location;//-1
+					emptyDE->fileSize = returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileSize;//0
+					emptyDE->dirBlocks = returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].dirBlocks;//0
+					//emptyDE->fileName = returnOfParsePath2->parentDirPtr->fileName;
+					strcpy(emptyDE->fileName, returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileName);//strcpy ""
+					//emptyDE->fileType = returnOfParsePath2->parentDirPtr->fileType;
+					strcpy(emptyDE->fileType, returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileType);//""
+					emptyDE->created = returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].created;//0
+					emptyDE->lastModified = returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].lastModified;//0
+			
+					//change values to default values
+					returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].location = 0;
+					returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileSize=0;
+					returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].dirBlocks=0;
+					strcpy(returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileName,"");
+					strcpy(returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].fileType,"");
+					returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].created=0;
+					returnOfParsePath2->parentDirPtr[returnOfParsePath2->index].lastModified=0;
+
+					
+					unsigned char * bufferOfMV = malloc(sizeof(DE)*totDirEnt);
+					
+					memcpy(bufferOfMV, returnOfParsePath2->parentDirPtr, returnOfParsePath2->parentDirPtr[0].fileSize);
+					int dirBlocksInMv = blocksNeeded(sizeof(DE)*totDirEnt);
+					printf("dirBlocksInMv: %d\n", dirBlocksInMv);
+					LBAwrite(bufferOfMV, dirBlocksInMv, emptyDE->location);
+
+					
+					
+
+					unsigned char * bufferOfMV2 = malloc(sizeof(DE)*totDirEnt);
+
+					
+					dirBlocksInMv = blocksNeeded(BLOCK_SIZE*totDirEnt);
+					memcpy(bufferOfMV2, mvDir, mvDir[0].fileSize);
+					LBAwrite(bufferOfMV2,dirBlocksInMv, mvDir[0].location);
+
+
+						printf("\nreloading current directory\n");
+						//then we need to reload current directory to reflect changes.
+						int retReload = reloadCurrentDir(dir[0]);
+						printf("\n1)MV: print current directory see if changes took\n");
+					
+					//freeing the buffer
+					free(bufferOfMV);
+					bufferOfMV=NULL;
+
+					free(bufferOfMV2);
+					bufferOfMV2=NULL;
+
+				}
+				else{
+					printf("Error: File not found in current directory\n");
+				}
+			}
+			else{
+				printf("Error: Not a valid directory\n");
+			}
+		}
+		else{
+			printf("Error: Not a valid file\n");
+		}
+	}
 #endif
 	return 0;
 }

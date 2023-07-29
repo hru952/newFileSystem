@@ -322,7 +322,7 @@ int b_write(b_io_fd fd, char *buffer, int count)
 
 		LBAread(newBuf, fcbArray[fd].fileDE->dirBlocks, fcbArray[fd].fileDE->location);
 
-		int newLoc = allocateFreeSpace((fcbArray[fd].fileDE->dirBlocks * BLOCK_SIZE) * 2);
+		int newLoc = allocateFreeSpace((fcbArray[fd].fileDE->dirBlocks * 2));
 
 		LBAwrite(newBuf, fcbArray[fd].fileDE->dirBlocks, newLoc);
 

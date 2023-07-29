@@ -586,13 +586,12 @@ DE *findEmptyDE(DE *parentDir)
 
 void printCurrentDir(DE *dir[])
 {
-    // printf("\ncurrent dir*************\n");
     for (int i = 0; i < totDirEnt; i++)
     {
         printf("\n");
         printf("Dfilename : %s\n", dir[i]->fileName);
         printf("Dlocation : %d\n", dir[i]->location);
-        printf("Dfilesize: %d\n", dir[i]->fileSize);
+        printf("Dfilesize: %lu\n", dir[i]->fileSize); // Use %lu for unsigned long
         printf("Dblockspanned : %d\n", dir[i]->dirBlocks);
         printf("DfileType : %s\n", dir[i]->fileType);
         printf("\n");
@@ -629,13 +628,14 @@ void freeBlocks(int startBlock, int numberOfBlocks)
     }
 }
 
+
 int createFile(char *filename, DE *dirEntry, DE *parent)
 {
 
     // allocate blocks for file. 5120 default. so we dont waste space
     int blocksSpanned = blocksNeeded(BLOCK_SIZE * DEFAULT_BLOCKS_ALLOC_FOR_FILE);
 
-    int fileLocation = allocateFreeSpace(BLOCK_SIZE * DEFAULT_BLOCKS_ALLOC_FOR_FILE);
+    int fileLocation = allocateFreeSpace(DEFAULT_BLOCKS_ALLOC_FOR_FILE);
     printf("CREATE FILE: %s, loc: %d\n", filename, fileLocation);
 
     // modify dir entry no need to write file to disk, we have no data yet.
