@@ -363,13 +363,13 @@ int cmd_mv(int argcnt, char *argvec[])
 				if(parsePathVal1 != NULL){
 					//check if there is an empty directory entry
 					char * bufferToOpenDir = malloc(BLOCK_SIZE*totDirEnt);
-					int dirBlocks = blocksNeeded(BLOCK_SIZE*totDirEnt);
+					int dirBlocks = totalNumOfBlocks(BLOCK_SIZE*totDirEnt);
 					LBAread(bufferToOpenDir, dirBlocks, parsePathVal1->parentDirPtr[parsePathVal1->index].location);
 					printf("Location of directory we want to move: %d\n", parsePathVal1->parentDirPtr[parsePathVal1->index].location);
 					mvDir = malloc(totDirEnt*sizeof(DE));
 					memcpy(mvDir, bufferToOpenDir, totDirEnt*sizeof(DE));
 
-					emptyDE = findEmptyDE(mvDir);
+					emptyDE = lookForFreeDE(mvDir);
 					printf("\n\nDirectory name as per retunOfFindEmptyDE: %s\n\n", emptyDE->fileName);
 					//exit(0);
 					
@@ -421,7 +421,7 @@ int cmd_mv(int argcnt, char *argvec[])
 					unsigned char * bufferOfMV = malloc(sizeof(DE)*totDirEnt);
 					
 					memcpy(bufferOfMV, returnOfParsePath2->parentDirPtr, returnOfParsePath2->parentDirPtr[0].fileSize);
-					int dirBlocksInMv = blocksNeeded(sizeof(DE)*totDirEnt);
+					int dirBlocksInMv = totalNumOfBlocks(sizeof(DE)*totDirEnt);
 					printf("dirBlocksInMv: %d\n", dirBlocksInMv);
 					LBAwrite(bufferOfMV, dirBlocksInMv, emptyDE->location);
 
@@ -431,14 +431,14 @@ int cmd_mv(int argcnt, char *argvec[])
 					unsigned char * bufferOfMV2 = malloc(sizeof(DE)*totDirEnt);
 
 					
-					dirBlocksInMv = blocksNeeded(BLOCK_SIZE*totDirEnt);
+					dirBlocksInMv = totalNumOfBlocks(BLOCK_SIZE*totDirEnt);
 					memcpy(bufferOfMV2, mvDir, mvDir[0].fileSize);
 					LBAwrite(bufferOfMV2,dirBlocksInMv, mvDir[0].location);
 
 
 						printf("\nreloading current directory\n");
 						//then we need to reload current directory to reflect changes.
-						int retReload = reloadCurrentDir(dir[0]);
+						int retReload = loadUpdatedDir(dir[0]);
 						printf("\n1)MV: print current directory see if changes took\n");
 					
 					//freeing the buffer

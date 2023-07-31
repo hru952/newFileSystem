@@ -166,7 +166,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         printf("signature is valid no need to create a new bitmap or vcb \n");
 
         //set dir(current directory) to root directory from volume.
-        int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+        int blocksSpanned = totalNumOfBlocks((totDirEnt * sizeof(DE)));
         int buffSize = blocksSpanned * blockSize;
         char * rootBuffer = malloc(buffSize * sizeof(char));
 
@@ -236,7 +236,7 @@ int initFileSystem(uint64_t numberOfBlocks, uint64_t blockSize)
         //printf("signature is valid no need to create a new bitmap or vcb \n");
 
         //set dir(current directory) to root directory from volume.
-        int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+        int blocksSpanned = totalNumOfBlocks((totDirEnt * sizeof(DE)));
         int buffSize = blocksSpanned * blockSize;
         char * rootBuffer = malloc(buffSize * sizeof(char));
 

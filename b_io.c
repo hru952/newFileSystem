@@ -62,41 +62,6 @@ b_io_fd b_getFCB()
 	return (-1); // all in use
 }
 
-// helper print FCB info
-void printFCBinfo(b_fcb fcb)
-{
-	printf("\nFCB ================================D\n");
-	printf("index : %d\n", fcb.index);
-	printf("buflen : %d\n", fcb.buflen);
-	printf("flags : %d\n", fcb.flags);
-	printf("offset : %d\n", fcb.fileOffset);
-	printf("bytesNotCopied : %d\n", fcb.bytesNotCopied);
-	printf("fileSize : %d\n", fcb.fileSize);
-
-	if (fcb.fileDE != NULL)
-	{
-		printf("\nfileDE Struct -------------->\n");
-		printf("DE filename : %s\n", fcb.fileDE->fileName);
-		printf("DE fileSize : %ld\n", fcb.fileDE->fileSize);
-		printf("DE location : %d\n", fcb.fileDE->location);
-		printf("DE blockspanned : %d\n", fcb.fileDE->dirBlocks);
-	}
-
-	printf("\nparent dir print +++++++++++++++++++++++++++\n");
-
-	for (int i = 0; i < totDirEnt; i++)
-	{
-		printf("\n");
-		printf("Dfilename : %s\n", fcb.parentDir[i].fileName);
-		printf("Dlocation : %d\n", fcb.parentDir[i].location);
-		printf("Dfilesize: %ld\n", fcb.parentDir[i].fileSize);
-		printf("Dblockspanned : %d\n", fcb.parentDir[i].dirBlocks);
-		printf("DfileType : %s\n", fcb.parentDir[i].fileType);
-		printf("\n");
-	}
-	printf("\n end FCB ================================D\n");
-}
-
 // Interface to open a buffered file
 // Modification of interface for this assignment, flags match the Linux flags for open
 // O_RDONLY, O_WRONLY, or O_RDWR, O_CREAT, O_TRUNC
@@ -155,7 +120,7 @@ b_io_fd b_open(char *filename, int flags)
 		memcpy(fcb->parentDir, pathInfo->parentDirPtr, (totDirEnt * sizeof(DE)));
 
 		// Directory entry of new file, to be manipulated by other read, write functions
-		fcb->fileDE = findEmptyDE(fcb->parentDir);
+		fcb->fileDE = lookForFreeDE(fcb->parentDir);
 		if (fcb->fileDE == NULL)
 		{
 			printf("OUt of empty DE in dir, return -1, b_io.c, b_open\n");
@@ -164,7 +129,7 @@ b_io_fd b_open(char *filename, int flags)
 
 		// test
 		printf("create file in b_open\n");
-		createFile(pathInfo->name, fcb->fileDE, fcb->parentDir);
+		createNewFile(pathInfo->name, fcb->fileDE, fcb->parentDir);
 
 		// test
 		// printDE(fcb->fileDE);
@@ -335,7 +300,7 @@ int b_write(b_io_fd fd, char *buffer, int count)
 		fcbArray[fd].fileDE->location = newLoc;
 		fcbArray[fd].fileDE->dirBlocks = fcbArray[fd].fileDE->dirBlocks * 2;
 
-		reloadCurrentDir(dir[0]);
+		loadUpdatedDir(dir[0]);
 
 		free(newBuf);
 		newBuf = NULL;
@@ -387,7 +352,7 @@ int b_write(b_io_fd fd, char *buffer, int count)
 		char *tempBuf = malloc(B_CHUNK_SIZE);
 
 		//
-		int blockOffset = blocksNeeded(fcbArray[fd].fileOffset) - 1;
+		int blockOffset = totalNumOfBlocks(fcbArray[fd].fileOffset) - 1;
 
 		// when blockoffset == 512 returns invalid block offset we need
 
@@ -649,7 +614,7 @@ int b_close(b_io_fd fd)
 	printf("\nParentDir copy in close\n");
 	printf("b_close loc parent dir: %d\n", fcbArray[fd].parentDir[0].location);
 	// write parent dir to volume. if dir is current directory reload.
-	int retWriteDir = writeDirToVolume(fcbArray[fd].parentDir);
+	int retWriteDir = dirToDisk(fcbArray[fd].parentDir);
 	if (retWriteDir < 0)
 	{
 		printf("error writing directory to volume, mfs.c, mkdir\n");
@@ -663,7 +628,7 @@ int b_close(b_io_fd fd)
 	if (strcmp(fcbArray[fd].parentPath, currPath) == 0)
 	{
 		printf("reload current dir\n");
-		reloadCurrentDir(fcbArray[fd].parentDir);
+		loadUpdatedDir(fcbArray[fd].parentDir);
 	}
 
 	// clean up fcb struct

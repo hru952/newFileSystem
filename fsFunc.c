@@ -108,24 +108,24 @@ unsigned int allocateFreeSpace(int numOfBlocks)
 }
 
 // Function to find no: of blocks needed based on blob size
-int blocksNeeded(int size)
+int totalNumOfBlocks(int size)
 {
     if (size == 0)
     {
         return 1;
     }
 
-    int blocksNeeded = (size + (vcb->blockSize - 1)) / (vcb->blockSize);
+    int totalNumOfBlocks = (size + (vcb->blockSize - 1)) / (vcb->blockSize);
 
-    return blocksNeeded;
+    return totalNumOfBlocks;
 }
 
-void createDir(char *name, DE *dirEntry, DE *parent)
+void createNewDir(char *name, DE *dirEntry, DE *parent)
 {
 
     DE directory[totDirEnt];
 
-    int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+    int blocksSpanned = totalNumOfBlocks((totDirEnt * sizeof(DE)));
     int buffSize = blocksSpanned * sizeOfBlock;
     unsigned char *buffer = malloc(buffSize * sizeof(char));
 
@@ -143,7 +143,7 @@ void createDir(char *name, DE *dirEntry, DE *parent)
 
     // pointer to self
     directory[0].location = location;
-    printf("\n New directory location : %d\n", directory[0].location);
+    printf("New directory created at location : %d\n", directory[0].location);
     directory[0].fileSize = (dirSize); // 2880
     directory[0].dirBlocks = blocksSpanned;
     strcpy(directory[0].fileName, ".");
@@ -184,7 +184,7 @@ void createDir(char *name, DE *dirEntry, DE *parent)
     int blocksWritten = LBAwrite(buffer, blocksSpanned, location);
     if (blocksWritten != blocksSpanned)
     {
-        printf("error: writing to volume in mfs.c, createDir()\n");
+        printf("error: writing to volume in mfs.c, createNewDir()\n");
     }
 
     // mark freespace used to create dir.
@@ -192,11 +192,11 @@ void createDir(char *name, DE *dirEntry, DE *parent)
 
     free(buffer);
     buffer = NULL;
-    // printf("\nEND createDir()------------------------------------\n");
+    // printf("\nEND createNewDir()------------------------------------\n");
 }
 
 // if directories become dynamic will have to ask for new memory location and free old ones.
-int writeDirToVolume(DE *dirToWrite)
+int dirToDisk(DE *dirToWrite)
 {
     int blocksSpanned = dirToWrite[0].dirBlocks;
 
@@ -215,7 +215,7 @@ int writeDirToVolume(DE *dirToWrite)
     int blocksWritten = LBAwrite(buffer, blocksSpanned, location);
     if (blocksWritten != blocksSpanned)
     {
-        printf("error: writing to volume in mfs.c, createDir()\n");
+        printf("error: writing to volume in mfs.c, createNewDir()\n");
     }
 
     free(buffer);
@@ -224,9 +224,9 @@ int writeDirToVolume(DE *dirToWrite)
     return 0;
 }
 
-int reloadCurrentDir(DE *directory)
+int loadUpdatedDir(DE *directory)
 {
-    // printf("\nreloadCurrentDir() ---------------------\n");
+    // printf("\nloadUpdatedDir() ---------------------\n");
 
     int blocksSpanned = directory[0].dirBlocks;
     int buffSize = blocksSpanned * sizeOfBlock;
@@ -255,7 +255,6 @@ int reloadCurrentDir(DE *directory)
 // get information on a given path from PPI struct.
 PP *parsePath(const char *pathname)
 {
-    // printf("\nWELCOME TO parse path()\n");
 
     if (pathname == NULL || strlen(pathname) == 0)
     {
@@ -283,7 +282,7 @@ PP *parsePath(const char *pathname)
     if (absolutePath && strcmp(pathname, currPath) == 0)
     {
         // load root. copy into parseDir.
-        int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+        int blocksSpanned = totalNumOfBlocks((totDirEnt * sizeof(DE)));
         int buffSize = blocksSpanned * BLOCK_SIZE;
         char buffer[buffSize];
 
@@ -353,7 +352,6 @@ PP *parsePath(const char *pathname)
                 }
                 else if ((numTokens - i) == 1) // last token so we can mark if it exists or not.
                 {
-                    // printf("last token found : %s\n", parseDir[j].fileName);
                     parseInfo.exists = 0;
                     found = 1;
                     foundIndex = j;
@@ -394,7 +392,7 @@ PP *parsePath(const char *pathname)
             }
 
             // turn this into helper functio used twice.
-            int blocksSpanned = blocksNeeded((totDirEnt * sizeof(DE)));
+            int blocksSpanned = totalNumOfBlocks((totDirEnt * sizeof(DE)));
             int buffSize = blocksSpanned * BLOCK_SIZE;
             char buffer[buffSize];
 
@@ -442,12 +440,10 @@ PP *parsePath(const char *pathname)
     char lastElementName[256] = "";
     if (numTokens > 0)
     {
-        printf("\ntoken[i - 1] = %s\n", tokenizedPath[numTokens - 1]);
         strcpy(lastElementName, tokenizedPath[numTokens - 1]);
     }
     else
     {
-        // printf("last elemnt strcpy to root / \n");
         strcpy(lastElementName, "/");
     }
 
@@ -477,14 +473,6 @@ PP *parsePath(const char *pathname)
             currToken = strtok(NULL, "/");
         }
 
-        // test display path.
-        // printf("1. numtokens: %d\n", numCurrentTokens);
-        printf("\ndisplay tokenized path\n");
-        for (int i = 0; i < numCurrentTokens; i++)
-        {
-            printf("%s\n", tokenCurrPath[i]);
-        }
-
         char *newPath;
         if (numCurrentTokens <= 1)
         {
@@ -499,12 +487,10 @@ PP *parsePath(const char *pathname)
         if (numCurrentTokens > 1)
         {
             strcpy(parseInfo.name, tokenCurrPath[numCurrentTokens - 2]);
-            // printf("parse info name updated to : %s\n", parseInfo.name);
 
             // build new path.
             newPath = malloc(2 * sizeof(char));
             strcpy(newPath, "/");
-            // printf("copy newpath / : %s\n", newPath);
 
             for (int i = 0; i < numCurrentTokens - 2; i++)
             {
@@ -516,7 +502,6 @@ PP *parsePath(const char *pathname)
                     strcat(newPath, "/");
                 }
             }
-            // printf("copy newpath after for loop : %s\n", newPath);
 
             parseInfo.path = malloc(strlen(newPath) + 1);
 
@@ -568,9 +553,9 @@ PP *parsePath(const char *pathname)
         }
     }
     return &parseInfo;
-} // END parsePath.
+}
 
-DE *findEmptyDE(DE *parentDir)
+DE *lookForFreeDE(DE *parentDir)
 {
 
     for (int i = 0; i < totDirEnt; i++)
@@ -580,22 +565,8 @@ DE *findEmptyDE(DE *parentDir)
             return &parentDir[i];
         }
     }
-    printf("NO empy DE in parent dir - return NULL, from findEmptyDE\n");
+    printf("NO empy DE in parent dir - return NULL, from lookForFreeDE\n");
     return NULL;
-}
-
-void printCurrentDir(DE *dir[])
-{
-    for (int i = 0; i < totDirEnt; i++)
-    {
-        printf("\n");
-        printf("Dfilename : %s\n", dir[i]->fileName);
-        printf("Dlocation : %d\n", dir[i]->location);
-        printf("Dfilesize: %lu\n", dir[i]->fileSize); // Use %lu for unsigned long
-        printf("Dblockspanned : %d\n", dir[i]->dirBlocks);
-        printf("DfileType : %s\n", dir[i]->fileType);
-        printf("\n");
-    }
 }
 
 void freeBlocks(int startBlock, int numberOfBlocks)
@@ -629,14 +600,14 @@ void freeBlocks(int startBlock, int numberOfBlocks)
 }
 
 
-int createFile(char *filename, DE *dirEntry, DE *parent)
+int createNewFile(char *filename, DE *dirEntry, DE *parent)
 {
 
     // allocate blocks for file. 5120 default. so we dont waste space
-    int blocksSpanned = blocksNeeded(BLOCK_SIZE * DEFAULT_BLOCKS_ALLOC_FOR_FILE);
+    int blocksSpanned = totalNumOfBlocks(BLOCK_SIZE * DEFAULT_BLOCKS_ALLOC_FOR_FILE);
 
     int fileLocation = allocateFreeSpace(DEFAULT_BLOCKS_ALLOC_FOR_FILE);
-    printf("CREATE FILE: %s, loc: %d\n", filename, fileLocation);
+    printf("Created file at location: %d\n",fileLocation);
 
     // modify dir entry no need to write file to disk, we have no data yet.
     // will have to write parent to disk for changes to take effect.

@@ -69,24 +69,23 @@ char *currPath; // free in close.
 
 int loadSpace(int blockSize);
 unsigned int allocateFreeSpace(int numOfBlocks);
-// int blocksNeeded(int size);
-// void createDir(char * name, DE * dirEntry, DE * parent);
+// int totalNumOfBlocks(int size);
+// void createNewDir(char * name, DE * dirEntry, DE * parent);
 // int writeDir (DE * directory);
 // int loadDir(DE * directory);
 // DE * allocateDE (DE * parentDir);
-int blocksNeeded(int size);
-void createDir(char *name, DE *dirEntry, DE *parent);
-int writeDirToVolume(DE *directory);
-int reloadCurrentDir(DE *directory);
-DE *findEmptyDE(DE *parentDir);
+int totalNumOfBlocks(int size);
+void createNewDir(char *name, DE *dirEntry, DE *parent);
+int dirToDisk(DE *directory);
+int loadUpdatedDir(DE *directory);
+DE *lookForFreeDE(DE *parentDir);
 
 PP parseInfo;           // for parsePath
 DE parseDir[totDirEnt]; // for parsePath
 PP *parsePath(const char *pathname);
 
-void printCurrentDir(DE *dir[]);
 void freeBlocks(int startBlock, int numberOfBlocks);
 
-int createFile(char *filename, DE *dirEntry, DE *parent);
+int createNewFile(char *filename, DE *dirEntry, DE *parent);
 
 #endif
